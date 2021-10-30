@@ -1,5 +1,4 @@
-FROM ubuntu:latest
-WORKDIR /root
+FROM centos:centos7
 RUN apt-get update && \
 	apt-get install -y wget python3 ffmpeg librtmp1 && \
 	wget https://github.com/plonk/peercast-yt/releases/download/v0.3.1/peercast-yt-linux-x86_64.tar.gz && \

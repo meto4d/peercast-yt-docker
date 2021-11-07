@@ -1,79 +1,44 @@
-FROM alpine:3.13.6
-WORKDIR /root
+#FROM alpine:3.13.6
+FROM frolvlad/alpine-glibc:alpine-3.13_glibc-2.33
+WORKDIR /peercast-yt-source
+ENV YT_VER=0.4.2 \
+	ARCH=x86_64
+ENV YT_URL="https://github.com/plonk/peercast-yt/archive/refs/tags/v"${YT_VER}".tar.gz"
 
-RUN apk add --no-cache bash make gcc g++
-RUN apk add --no-cache python3 ffmpeg librtmp
-RUN apk add rtmpdump-dev binutils-gold ruby ruby-dev
+#for tools
+RUN apk add --no-cache bash gdb vim
+
+# for building peercast-yt
+RUN apk add --no-cache make gcc g++ linux-headers rtmpdump-dev binutils-gold ruby ruby-dev
+# libc-dev musl-dev
+
+# for peercast-yt
+RUN apk add --no-cache python3 ffmpeg librtmp openssl-dev libexecinfo libexecinfo-dev
+
+# download YT source
+RUN wget -O - ${YT_URL} | \
+	tar zxvf - 
+WORKDIR /peercast-yt-source/peercast-yt-${YT_VER}
+
+# modify Makefile for ruby
+RUN sed -i -e "s/RUBYOPT='--disable-gems'//g" ui/Makefile
 RUN gem install json
-RUN wget "https://github.com/plonk/peercast-yt/archive/refs/tags/v0.3.1.tar.gz" && \
-	tar xzf v0.3.1.tar.gz && \
-	rm v0.3.1.tar.gz
-RUN sed -i -e "s/RUBYOPT='--disable-gems' .\/generate-html/.\/generate-html/g" peercast-yt-0.3.1/ui/Makefile
-WORKDIR /root/peercast-yt-0.3.1/ui/linux
-RUN make all
 
-#RUN git clone https://github.com/plonk/peercast-yt.git
-#RUN mkdir /lib64 && \
-#	ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2 && \
-#	ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+# modify Source
+## not using glibc _GNU_SOURCE 
+RUN if [ ${YT_VER//./} -ge 42 ]; then \
+	sed -i  's/(_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE/!defined(__GLIBC__) || ( (_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE )/g' core/unix/strerror.cpp; \
+	sed -i '1s/^/#include<limits.h>\n/' core/unix/usys.cpp; \
+	sed -i  's/-DADD_BACKTRACE//' ui/linux/Makefile; \
+fi
 
-#RUN apk add --no-cache libc6-compat && \
-#	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64 && \
-#	ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
-#
-#RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-#    ALPINE_GLIBC_PACKAGE_VERSION="2.34-r0" && \
-#    ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
-#    ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
-#    ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
-#    apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
-#	wget \
-#        "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
-#        -O "/etc/apk/keys/sgerrand.rsa.pub" && \
-#	wget \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-#	apk add --no-cache \
-#        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-#    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
-#    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 C.UTF-8 || true && \
-#    echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh && \
-#	apk del glibc-i18n && \
-#    \
-#    rm "/root/.wget-hsts" && \
-#    apk del .build-dependencies && \
-#    rm \
-#        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-#        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
-#
-#RUN wget https://github.com/plonk/peercast-yt/releases/download/v0.3.1/peercast-yt-linux-x86_64.tar.gz && \
-#	tar xzf peercast-yt-linux-x86_64.tar.gz && \
-#	rm peercast-yt-linux-x86_64.tar.gz
+# make
+WORKDIR /peercast-yt-source/peercast-yt-${YT_VER}/ui/linux
+#RUN make
+#WORKDIR /
+#RUN tar xvzf /peercast-yt-source/peercast-yt-${YT_VER}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz
 
-#RUN mkdir /lib64 && \
-#	ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
-#RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+WORKDIR /peercast-yt
+COPY --chmod=660 peercast.ini .
 
-
-
-#FROM ubuntu:latest
-#WORKDIR /root
-#RUN apt-get update && \
-#	apt-get install -y wget python3 ffmpeg librtmp1 && \
-#	wget https://github.com/plonk/peercast-yt/releases/download/v0.3.1/peercast-yt-linux-x86_64.tar.gz && \
-#	tar xzf peercast-yt-linux-x86_64.tar.gz && \
-#	rm peercast-yt-linux-x86_64.tar.gz && \
-#	apt-get purge -y wget && \
-#	apt-get clean && \
-#	rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
-#
-#ADD peercast.ini /root/peercast-yt
-#ADD run.sh /root
-#RUN mkdir -p /root/config
-#
-#CMD ["/root/run.sh"]
-#
+#RUN ./peercast -i peercast.ini -P .

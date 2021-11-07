@@ -27,10 +27,13 @@ RUN gem install json
 # modify Source
 ## not using glibc _GNU_SOURCE 
 RUN if [ ${YT_VER//./} -ge 42 ]; then \
-	sed -i  's/(_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE/!defined(__GLIBC__) || ( (_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE )/g' core/unix/strerror.cpp; \
-	sed -i '1s/^/#include<limits.h>\n/' core/unix/usys.cpp; \
-	sed -i  's/-DADD_BACKTRACE//' ui/linux/Makefile; \
+	sed -i -e 's/(_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE/!defined(__GLIBC__) || ( (_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE )/g' core/unix/strerror.cpp; \
+	sed -i -e '1s/^/#include<limits.h>\n/' core/unix/usys.cpp; \
+	sed -i -e 's/-DADD_BACKTRACE//' ui/linux/Makefile; \
 fi
+
+# temp bugfix
+RUN sed -i -e 's/delete cs//g' core/common/channel.cpp
 
 # make
 WORKDIR /peercast-yt-source/peercast-yt-${YT_VER}/ui/linux

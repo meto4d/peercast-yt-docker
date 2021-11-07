@@ -1,5 +1,21 @@
 # peercast-yt-docker
 
+PeerCast YT の Docker コンテナのForkで、YT標準のUbuntu以外のコンテナです。
+
+主にAlpineコンテナ、CentOS7コンテナをメンテナンスしています。
+
+## Branchについて
+
+Branchで各種ベースコンテナを区切っています。
+
+masterブランチはYTの標準Ubuntuになっています。
+
+## その他
+
+Docker hubへは気が向いたら上げておきます。
+
+# 以下Forkもと原文
+
 PeerCast YT の Docker コンテナを作ってみました。`plonk/peercast-yt` の
 名前で
 [Docker hub に上がっています](https://hub.docker.com/r/plonk/peercast-yt/)

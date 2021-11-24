@@ -1,47 +1,71 @@
 # peercast-yt-docker
 
-PeerCast YT の Docker コンテナを作ってみました。`plonk/peercast-yt` の
-名前で
-[Docker hub に上がっています](https://hub.docker.com/r/plonk/peercast-yt/)
-。
+PeerCast YT の Docker コンテナのForkで、YT標準のUbuntu以外のコンテナです。
 
-起動してみましょう。初回起動時は Docker イメージのダウンロードが行われ
-ます。終了は `Ctrl+C` でできます。
+主にAlpineコンテナ、CentOS7コンテナをメンテナンスしています。
 
-    $ docker run -it --net=host plonk/peercast-yt:0.3.0
-    (...)
-    Running with default configuration
+## Branch/tagについて
 
-ホストの 7144 番ポートをブラウザで開いて HTML UI にアクセスできます。
-この時点ではパスワードが設定されていないのでリモートから HTML UI にア
-クセスすることはできません。(JSON-RPCも使えません)
+Branch/tagで各種ベースコンテナを区切っています。  
+目的のベースイメージのBranchかtagを
 
-設定ページでパスワードなどが変更できますが、設定ファイルがコンテナの
-外に保存できない状態ですのでコンテナが終了したら設定が消えてしまいま
-す。
+masterブランチはYTの標準であるUbuntuイメージになっています。
 
-設定ファイルをコンテナの外に保存するには、まず設定ファイルを保存するディ
-レクトリを作ります。ここでは、ユーザー名が `user` で、
-`/home/user/config` ディレクトリを作ったとします。
+# 利用方法
 
-    $ mkdir /home/user/config
+imageをpullしてdocker runだけで利用することができます。
 
-peercast-yt のコンテナを以下のように起動します。これで
-`/home/user/config` とコンテナ内の `/root/config` がリンクされた状態に
-なります。
+    $ docker run -p 7144:7144 meto4d/peercast-yt:latest
 
-    $ docker run -it --net=host -v /home/user/config:/root/config plonk/peercast-yt:0.3.0
-    Running with default configuration
-    ^C
+もし設定ファイルを変更したい場合は、下記のような別途Dockerfileを用意してbuildしてください。(推奨)
+もしくは、docker cp/docker execなどで設定ファイルを差し替えてpeercast-ytを再起動させてください。
 
-`Ctrl+C` を押してコンテナを終了すると、
-`/home/user/config/peercast.ini` の名前で設定ファイルができているはず
-です。パスワードを設定する場合は`Privacy`セクションの`password`キーに
-平文で設定してください。
+## 設定ファイルを差し替える場合
+Dockerfile例:
 
-次回からは `/home/user/config/peercast.ini` から設定が読み込まれるよう
-になります。
+    #peercast-yt Dockerfile
+    FROM meto4d/peercast-yt:latest
+    COPY <用意したpeercast.iniファイル> .config/peercast/
 
-    $ docker run -it --net=host -v /home/plonk/config:/root/config plonk/peercast-yt:0.3.0
-    Running with user configuration: /root/config/peercast.ini
-    ^CSaving configuration: /root/config/peercast.ini
+コマンド例:
+
+    $ docker build -t peercast .
+    $ docker run -p 7144:7144 peercast
+
+
+
+# その他
+
+### Dockerhub
+[Docker hub meto4d/peercast-yt](https://hub.docker.com/r/meto4d/peercast-yt/)へ各種imageを上げています。
+
+### 初期設定項目について
+デフォルト設定から変更された設定ファイルが導入されています。
+- 初期パスワード：peercast
+- 登録YP：平成YP, SP, TP, P@YP[^P@YP], 芝, YPv6[^YPv6], イベントYP
+- ダイレクト視聴数:1
+
+[^P@YP]:https対応版の場合https,https未対応の場合http
+[^YPv6]:IPv6対応したpeercast-ytの場合のみ
+
+### alpineイメージの注意点
+alpineイメージのみ、muslを利用しているため、ソースコードを一部変更しています。(peercast-yt ver0.4.2現在)
+
+簡単には以下のコード変更を加えています。
+- glibcの機能検知マクロを厳密化
+- BACKTRACEを無効化
+- 一部マルチスレッド用のlock処理を除去
+
+詳細の変更点は、ソースコードを直接sedコマンドにて加筆修正をしているため、Dockerfileを確認してください。
+
+なお、このソースコードの変更は、[本家peercast-yt](https://github.com/plonk/peercast-yt/)へ報告済みで、masterへも取り込まれています。
+ソースを参照しているReleasesのURLをいくつかのコンテナで同一化するため、こちらは利用していません。
+0.4.3で改善するかもしれませんね。
+
+### 本Dockerfileのコンセプト
+本Dockerfileのコンセプトとして、下記の3つを目的としています。 
+- ベースOSでビルドしたものを利用する
+- レイヤーサイズを少なくする
+- 各コンテナイメージでのレイヤーの差分を少なくする
+
+そのためAppImage、各種package、make installを利用していません。  

@@ -1,6 +1,6 @@
 #FROM alpine:3.13.6
 FROM frolvlad/alpine-glibc:alpine-3.13_glibc-2.33 AS builder
-ENV YT_VER=0.4.2 \
+ENV YT_VER=0.3.8 \
 	ARCH=x86_64
 WORKDIR /
 ENV YT_URL="https://github.com/plonk/peercast-yt/archive/refs/tags/v"${YT_VER}".tar.gz" \
@@ -22,8 +22,10 @@ RUN set -x && \
 	wget -O - ${YT_URL} | tar zxvf - && \
 	# modify source
 		## not using glibc _GNU_SOURCE 
-		if [ ${YT_VER//./} -ge 42 ]; then \
+		if [ ${YT_VER//./} -eq 42 ]; then \
 			sed -i -e 's/(_POSIX_C_SOURCE >= 200112L) \&\& ! _GNU_SOURCE/!defined(__GLIBC__) || ( (_POSIX_C_SOURCE >= 200112L) \&\& ! _GNU_SOURCE )/g' ${WORKDIR}/core/unix/strerror.cpp; \
+		fi; \
+		if [ ${YT_VER//./} -ge 37 ] && [ ${YT_VER//./} -le 42 ]; then \
 			sed -i -e '1s/^/#include<limits.h>\n/' ${WORKDIR}/core/unix/usys.cpp; \
 			sed -i -e 's/-DADD_BACKTRACE//' ${WORKDIR}/ui/linux/Makefile; \
 		fi; \
@@ -33,11 +35,13 @@ RUN set -x && \
 	# make
 	#WORKDIR /root/peercast-yt-${YT_VER}/ui/linux 
 	make -C ${WORKDIR}/ui/linux && \
-#	if [ ${YT_VER//./} -lt 37 ]; then \
-		tar xzf ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast/ && \
-#	else \
-#		make install -C ${WORKDIR}/ui/linux && \
-#	fi; \
+	tar xzf ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast/ && \
+## make installの廃止 - build用イメージ対応のため
+##	if [ ${YT_VER//./} -lt 37 ]; then \
+##		tar xzf ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast/ && \
+##	else \
+##		make install -C ${WORKDIR}/ui/linux && \
+##	fi; \
 	# mv tarball
 	mv ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz / && \
 	# clean up
@@ -52,7 +56,7 @@ CMD ["peercast", "-i", "/home/peercast/.config/peercast/", "-P", "/home/peercast
 
 #RUN ./peercast -i peercast.ini -P .
 FROM alpine:3.13.6
-ENV YT_VER=0.4.2 \
+ENV YT_VER=0.3.8 \
 	ARCH=x86_64
 COPY --from=builder /peercast-yt-linux-${ARCH}.tar.gz /
 RUN set -x && \

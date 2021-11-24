@@ -1,6 +1,6 @@
 #FROM alpine:3.13.6
 FROM frolvlad/alpine-glibc:alpine-3.13_glibc-2.33 AS builder
-ENV YT_VER=0.3.8 \
+ENV YT_VER=0.4.2 \
 	ARCH=x86_64
 WORKDIR /
 ENV YT_URL="https://github.com/plonk/peercast-yt/archive/refs/tags/v"${YT_VER}".tar.gz" \
@@ -56,7 +56,7 @@ CMD ["peercast", "-i", "/home/peercast/.config/peercast/", "-P", "/home/peercast
 
 #RUN ./peercast -i peercast.ini -P .
 FROM alpine:3.13.6
-ENV YT_VER=0.3.8 \
+ENV YT_VER=0.4.2 \
 	ARCH=x86_64
 COPY --from=builder /peercast-yt-linux-${ARCH}.tar.gz /
 RUN set -x && \

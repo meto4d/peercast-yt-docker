@@ -37,7 +37,7 @@ Dockerfile例:
 # その他
 
 ### Dockerhub
-[Docker hub meto4d/peercast-yt](https://hub.docker.com/repository/docker/meto4d/peercast-yt/)へ各種imageを上げています。
+[Docker hub meto4d/peercast-yt](https://hub.docker.com/r/meto4d/peercast-yt/)へ各種imageを上げています。
 
 ### 初期設定項目について
 デフォルト設定から変更された設定ファイルが導入されています。

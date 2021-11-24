@@ -4,7 +4,7 @@ PeerCast YT の Docker コンテナのForkで、YT標準のUbuntu以外のコン
 
 主にAlpineコンテナ、CentOS7コンテナをメンテナンスしています。
 
-## Branchについて
+## Branch/tagについて
 
 Branchで各種ベースコンテナを区切っています。
 
@@ -51,9 +51,16 @@ alpineイメージのみ、muslを利用しているため、ソースコード�
 - glibcの機能検知マクロを厳密化
 - BACKTRACEを無効化
 - 一部マルチスレッド用のlock処理を除去
-Dockerfile上でsedにより加筆修正をしているため、詳細はDockerfileを閲覧してください。
+
+詳細の変更点は、ソースコードを直接sedコマンドにて加筆修正をしているため、Dockerfileを確認してください。
 
 なお、このソースコードの変更は、[本家peercast-yt](https://github.com/plonk/peercast-yt/)へ報告済みで、masterへも取り込まれています。
-Releasesからソースを参照しているURLをいくつかのコンテナで同一化するため、こちらは利用していません。
+ソースを参照しているReleasesのURLをいくつかのコンテナで同一化するため、こちらは利用していません。
 0.4.3で改善するかもしれませんね。
 
+本Dockerfileのコンセプトとして、下記の3つを目的としています。 
+- ベースOSでビルドしたものを利用する
+- レイヤーサイズを少なくする
+- 各コンテナイメージでのレイヤーの差分を少なくする
+
+そのためAppImage、各種package、make installを利用していません。  

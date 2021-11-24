@@ -6,7 +6,8 @@ PeerCast YT の Docker コンテナのForkで、YT標準のUbuntu以外のコン
 
 ## Branch/tagについて
 
-Branchで各種ベースコンテナを区切っています。
+Branch/tagで各種ベースコンテナを区切っています。  
+目的のベースイメージのBranchかtagを
 
 masterブランチはYTの標準であるUbuntuイメージになっています。
 
@@ -35,9 +36,11 @@ Dockerfile例:
 
 # その他
 
+### Dockerhub
 [Docker hub meto4d/peercast-yt](https://hub.docker.com/repository/docker/meto4d/peercast-yt/)へ各種imageを上げています。
 
-少し設定項目が追加された設定ファイルが導入されています。
+### 初期設定項目について
+デフォルト設定から変更された設定ファイルが導入されています。
 - 初期パスワード：peercast
 - 登録YP：平成YP, SP, TP, P@YP[^P@YP], 芝, YPv6[^YPv6], イベントYP
 - ダイレクト視聴数:1
@@ -45,6 +48,7 @@ Dockerfile例:
 [^P@YP]:https対応版の場合https,https未対応の場合http
 [^YPv6]:IPv6対応したpeercast-ytの場合のみ
 
+### alpineイメージの注意点
 alpineイメージのみ、muslを利用しているため、ソースコードを一部変更しています。(peercast-yt ver0.4.2現在)
 
 簡単には以下のコード変更を加えています。
@@ -58,6 +62,7 @@ alpineイメージのみ、muslを利用しているため、ソースコード�
 ソースを参照しているReleasesのURLをいくつかのコンテナで同一化するため、こちらは利用していません。
 0.4.3で改善するかもしれませんね。
 
+### 本Dockerfileのコンセプト
 本Dockerfileのコンセプトとして、下記の3つを目的としています。 
 - ベースOSでビルドしたものを利用する
 - レイヤーサイズを少なくする

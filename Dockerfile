@@ -50,11 +50,12 @@ RUN set -x && \
 	echo "finish building"
 
 #WORKDIR /peercast-yt
-COPY --chmod=660 peercast.ini /home/peercast/.config/peercast/
+COPY --chmod=660 --chown=peercast:peercast peercast.ini /home/peercast/.config/peercast/
+WORKDIR /home/peercast
 USER peercast:peercast
-CMD ["peercast", "-i", "/home/peercast/.config/peercast/", "-P", "/home/peercast/peercast-yt"]
+CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peercast-yt"]
+# ---with-sources image
 
-#RUN ./peercast -i peercast.ini -P .
 FROM alpine:3.13.6
 ENV YT_VER=0.3.1 \
 	ARCH=x86_64

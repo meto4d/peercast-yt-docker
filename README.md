@@ -7,7 +7,7 @@ PeerCast YT の Docker コンテナのForkで、YT標準のUbuntu以外のコン
 ## Branch/tagについて
 
 Branch/tagで各種ベースコンテナを区切っています。  
-目的のベースイメージのBranchかtagを
+目的のベースイメージのBranchかtagを選んでご利用ください。
 
 masterブランチはYTの標準であるUbuntuイメージになっています。
 

@@ -48,7 +48,7 @@ RUN set -x && \
 ##		make install -C ${WORKDIR}/ui/linux && \
 ##	fi; \
 	# mv tarball
-	mv ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz / && \
+	mv /home/peercast/${YT_DIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz / && \
 	# clean up
 	apk del .buildtools && \
 	#rm -rf ${WORKDIR} && \

@@ -8,8 +8,10 @@ ENV YT_URL="https://github.com/plonk/peercast-yt/archive/refs/tags/v"${YT_VER}".
 
 # setup
 RUN set -x && \
+	# peercast user
 	addgroup -g 7144 -S peercast && \
 	adduser -S -D -u 7144 -h /home/peercast -s /sbin/nologin -G peercast -g peercast peercast && \
+	# check ARCH type
 	if [ "${ARCH}" != "$(uname -m | tr A-Z a-z)" ]; then \
 		echo "check 'ARCH' value as cpu architexture type"; \
 		exit 1; \
@@ -35,7 +37,6 @@ RUN set -x && \
 			sed -i -e 's/inData.lock.lock();/\/\/inData.lock.lock();/' /home/peercast/${YT_DIR}/core/common/pcp.h; \
 			sed -i -e 's/outData.lock.lock();/\/\/outData.lock.lock();/' /home/peercast/${YT_DIR}/core/common/pcp.h; \
 		# make
-		#WORKDIR /root/peercast-yt-${YT_VER}/ui/linux 
 		make -C /home/peercast/${YT_DIR}/ui/linux && \
 		tar xzf /home/peercast/${YT_DIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast/ \
 	" && \
@@ -54,7 +55,7 @@ RUN set -x && \
 
 #WORKDIR /peercast-yt
 COPY --chmod=660 --chown=peercast:peercast peercast.ini /home/peercast/.config/peercast/
-WORKDIR /home/peercast
+WORKDIR /home/peercast/
 USER peercast:peercast
 CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peercast-yt"]
 # ---with-sources image
@@ -75,7 +76,7 @@ RUN set -x && \
 	# clean up
 	rm /peercast-yt-linux-${ARCH}.tar.gz
 
-USER peercast:peercast
 COPY --chmod=660 --chown=peercast:peercast peercast.ini /home/peercast/.config/peercast/
-WORKDIR /home/peercast
+WORKDIR /home/peercast/
+USER peercast:peercast
 CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peercast-yt"]

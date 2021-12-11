@@ -30,7 +30,7 @@ RUN set -x && \
 		tar xzf /home/peercast/${YT_DIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast/ \
 	" && \
 	# mv tarball
-	mv ${WORKDIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz / && \
+	mv /home/peercast/${YT_DIR}/ui/linux/peercast-yt-linux-${ARCH}.tar.gz / && \
 	# clean up
 	apt-get -y purge make gcc g++ ruby libssl-dev librtmp-dev curl pkg-config && \
 	apt-get clean && \

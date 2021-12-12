@@ -36,7 +36,7 @@ RUN set -x && \
 #	echo "finish build";
 
 COPY --chmod=660 --chown=peercast:peercast peercast.ini /home/peercast/.config/peercast/
-WORKDIR /home/peercast
+WORKDIR /home/peercast/
 USER peercast:peercast
 CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peercast-yt"]
 # ---with-sources image
@@ -61,6 +61,6 @@ RUN set -x && \
 	rm -rf /var/lib/apt/lists/*;
 
 COPY --chmod=660 --chown=peercast:peercast peercast.ini /home/peercast/.config/peercast/
-WORKDIR /home/peercast
+WORKDIR /home/peercast/
 USER peercast:peercast
 CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peercast-yt"]

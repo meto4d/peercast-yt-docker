@@ -1,5 +1,5 @@
 FROM ubuntu:20.04 AS builder
-ENV YT_VER=0.4.2 \
+ENV YT_VER=0.4.3 \
 	ARCH=x86_64
 WORKDIR /
 ENV YT_URL="https://github.com/plonk/peercast-yt/archive/refs/tags/v"${YT_VER}".tar.gz" \
@@ -42,7 +42,7 @@ CMD ["peercast-yt/peercast", "-i", ".config/peercast/peercast.ini", "-P", "peerc
 # ---with-sources image
 
 FROM ubuntu:20.04
-ENV YT_VER=0.4.2 \
+ENV YT_VER=0.4.3 \
 	ARCH=x86_64
 COPY --from=builder /peercast-yt-linux-${ARCH}.tar.gz /
 RUN set -x && \

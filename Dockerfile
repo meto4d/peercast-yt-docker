@@ -21,16 +21,16 @@ RUN set -x && \
 	# for runing peercast-yt
 	apk add --no-cache python3 ffmpeg librtmp && \
 	# for backtrace
-	#apk add --no-cache libexecinfo libexecinfo-dev libunwind libunwind-dev && \
+	apk add --no-cache libexecinfo libexecinfo-dev libunwind libunwind-dev && \
 	# switch user
 	su -s /bin/sh - peercast -c " \
 		# download YT source
 		wget -O - ${YT_URL} | tar zxvf - && \
 		# modify source
 			## with backtrace
-			#sed -i -e 's/LDFLAGS = -fuse-ld=gold -pthread -rdynamic/LDFLAGS = -fuse-ld=gold -pthread -rdynamic -lunwind -lexecinfo/' /home/peercast/${YT_DIR}/ui/linux/Makefile; \
+			sed -i -e 's/LDFLAGS = -fuse-ld=gold -pthread -rdynamic/LDFLAGS = -fuse-ld=gold -pthread -rdynamic -lunwind -lexecinfo/' /home/peercast/${YT_DIR}/ui/linux/Makefile; \
 			## without backtrace
-			sed -i -e 's/-DADD_BACKTRACE//' /home/peercast/${YT_DIR}/ui/linux/Makefile; \
+			#sed -i -e 's/-DADD_BACKTRACE//' /home/peercast/${YT_DIR}/ui/linux/Makefile; \
 		# make
 		#WORKDIR /root/peercast-yt-${YT_VER}/ui/linux 
 		make -C /home/peercast/${YT_DIR}/ui/linux && \
@@ -61,7 +61,7 @@ RUN set -x && \
 	# install run tools
 	apk add --no-cache python3 ffmpeg librtmp && \
 	## install lib backtrace
-	#apk add --no-cache libexecinfo libunwind && \
+	apk add --no-cache libexecinfo libunwind && \
 	# switch user and untar
 	su -s /bin/sh - peercast -c \
 		"tar xzf /peercast-yt-linux-${ARCH}.tar.gz -C /home/peercast" && \
